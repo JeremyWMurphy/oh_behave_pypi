@@ -168,6 +168,7 @@ class TeensyController:
             try:
                 waiting = ser.in_waiting
                 chunk = ser.read(waiting if waiting > 0 else 1)
+                print(len(chunk))
             except serial.SerialException:
                 break
             if not chunk:

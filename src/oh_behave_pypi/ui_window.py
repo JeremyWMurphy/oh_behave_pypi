@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from pathlib import Path
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QColor
@@ -40,7 +42,7 @@ class OhBehaveWindow(QMainWindow):
         self._populate_ports()
 
         if self.port_combo.count() > 0:
-            self.connect_serial()
+            self._populate_ports()
 
         self.ui_timer = QTimer(self)
         self.ui_timer.setInterval(33)
@@ -324,6 +326,8 @@ class OhBehaveWindow(QMainWindow):
                 return
             self.connect_btn.setText("Disconnect")
             self.port_combo.setEnabled(False)
+            time.sleep(0.2)
+            print("Stream stats:", self.teensy.get_stream_stats())
 
     def _choose_save_path(self) -> None:
         folder = QFileDialog.getExistingDirectory(

@@ -5,6 +5,13 @@ from oh_behave_pypi.config import ExperimentConfig
 from oh_behave_pypi.teensy_io import TeensyController
 from oh_behave_pypi.ui_window import OhBehaveWindow
 
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message="All-NaN slice encountered",
+    category=RuntimeWarning,
+)
 
 def main() -> None:
     cfg = ExperimentConfig(

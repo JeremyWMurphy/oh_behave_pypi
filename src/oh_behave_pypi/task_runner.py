@@ -7,7 +7,7 @@ import threading
 import time
 import numpy as np
 
-from config import (
+from oh_behave_pypi.config import (
     ExperimentConfig,
     build_trial_pool,
     format_config_lines,
