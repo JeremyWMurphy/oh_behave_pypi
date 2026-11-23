@@ -1,0 +1,13 @@
+import numpy as np
+
+def read_teensy_data(filename):
+    dtype = np.dtype([
+        ("sync0", "u1"), ("sync1", "u1"),
+        ("loopNum", "<u4"), ("frameNum", "<u4"),
+        ("stateNum", "<u2"), ("outcomeNum", "<u2"),
+        ("val0", "<u2"), ("val1", "<u2"),
+        ("lick", "<i2"), ("wheel", "<u2"),
+        ("v1State", "u1"), ("v2State", "u1"), ("barcode", "u1"),
+        ("checksum", "u1"),
+    ])
+    return np.fromfile(filename, dtype=dtype)
