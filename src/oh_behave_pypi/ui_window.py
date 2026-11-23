@@ -41,9 +41,6 @@ class OhBehaveWindow(QMainWindow):
         self._build_ui()
         self._populate_ports()
 
-        if self.port_combo.count() > 0:
-            self._populate_ports()
-
         self.ui_timer = QTimer(self)
         self.ui_timer.setInterval(33)
         self.ui_timer.timeout.connect(self._refresh_ui)
@@ -373,6 +370,15 @@ class OhBehaveWindow(QMainWindow):
 
     def _refresh_ui(self) -> None:
         state = self.runner.snapshot_ui_state()
+
+        if state["is_running"]:
+            snapshots = self.teensy.get_trace_snapshots()
+            for idx, curve in enumerate(self.curves):
+                curve.setData(self.teensy.x_axis, snapshots[idx], connect="finite")
+        else:
+            for curve in self.curves:
+                curve.setData([], [])
+
         if not state["is_running"] and self.end_btn.isEnabled():
             self._set_idle_buttons()
 
@@ -382,10 +388,6 @@ class OhBehaveWindow(QMainWindow):
         for code, lbl in self.outcome_labels.items():
             color = "#00FFFF" if code == hi else "#808080"
             lbl.setStyleSheet(f"font-size: 26px; font-weight: bold; color: {color};")
-
-        snapshots = self.teensy.get_trace_snapshots()
-        for idx, curve in enumerate(self.curves):
-            curve.setData(self.teensy.x_axis, snapshots[idx], connect="finite")
 
         if state["perf_dirty"]:
             self.runner.clear_perf_dirty()

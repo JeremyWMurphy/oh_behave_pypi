@@ -159,6 +159,7 @@ class TeensyController:
         return xor_val == frame_bytes[-1]
 
     def _reader_loop(self) -> None:
+        print("[reader] entered _reader_loop", flush=True)
         buf = bytearray()
 
         while not self.app_stop_event.is_set():
@@ -168,7 +169,6 @@ class TeensyController:
             try:
                 waiting = ser.in_waiting
                 chunk = ser.read(waiting if waiting > 0 else 1)
-                print(len(chunk))
             except serial.SerialException:
                 break
             if not chunk:
@@ -180,6 +180,7 @@ class TeensyController:
             bad_csum = 0
             skips = 0
 
+            frame_mv = None
             i = 0
             n_buf = len(buf)
             while i + FRAME_SIZE <= n_buf:
@@ -191,6 +192,8 @@ class TeensyController:
                 frame_mv = memoryview(buf)[i : i + FRAME_SIZE]
                 if not self._verify_xor_checksum(frame_mv):
                     bad_csum += 1
+                    frame_mv.release()
+                    frame_mv = None
                     # Advance past sync0 so we can resync cleanly
                     i += 1
                     continue
@@ -198,11 +201,16 @@ class TeensyController:
                 fields = FRAME_STRUCT.unpack_from(frame_mv, 0)
                 parsed_rows.append(fields)
                 raw_frames.append(bytes(frame_mv))
+                frame_mv.release()
+                frame_mv = None
                 i += FRAME_SIZE
+
+            if frame_mv is not None:
+                frame_mv.release()
+                frame_mv = None
 
             if i > 0:
                 del buf[:i]
-
             if not parsed_rows and bad_csum == 0 and skips == 0:
                 continue
 
@@ -288,6 +296,10 @@ class TeensyController:
                         elif st != 12 and prev_st == 12:
                             self.trial_end_entered.clear()
                             self.trial_end_exited.set()
+        print(
+            f"[reader] exited loop: stop={self.app_stop_event.is_set()}, ser={self.ser}",
+            flush=True,
+        )
 
     def _writer_loop(self) -> None:
         while not self.app_stop_event.is_set():
