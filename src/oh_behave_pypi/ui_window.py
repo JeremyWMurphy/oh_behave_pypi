@@ -39,6 +39,8 @@ class OhBehaveWindow(QMainWindow):
 
         self._apply_dark_theme()
         self._build_ui()
+        self._plot_step = self.cfg.plot_step
+        self._x_disp = self.teensy.x_axis[:: self._plot_step]
         self._populate_ports()
 
         self.ui_timer = QTimer(self)
@@ -342,6 +344,7 @@ class OhBehaveWindow(QMainWindow):
         self.runner.set_idle_title_for_mode(run_type)
 
     def start_run(self) -> None:
+        self.teensy.clear_traces()
         if not self.teensy.is_connected:
             QMessageBox.warning(self, "Not Connected", "Connect to the Teensy serial port first.")
             return
@@ -374,7 +377,8 @@ class OhBehaveWindow(QMainWindow):
         if state["is_running"]:
             snapshots = self.teensy.get_trace_snapshots()
             for idx, curve in enumerate(self.curves):
-                curve.setData(self.teensy.x_axis, snapshots[idx], connect="finite")
+                curve.setData(self._x_disp, snapshots[idx][:: self._plot_step], connect="finite")
+
         else:
             for curve in self.curves:
                 curve.setData([], [])

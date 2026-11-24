@@ -15,7 +15,7 @@ warnings.filterwarnings(
 
 def main() -> None:
     cfg = ExperimentConfig(
-        teensy_fs=2000,
+        teensy_fs=10000,
         # serial_port="/dev/ttyACM0",  # Optional override on Raspberry Pi
     )
     app = QApplication(sys.argv)

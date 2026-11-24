@@ -9,7 +9,7 @@ Serial interaction
 <S,0> : set state
 */
 
-const uint Fs = 2000;  // Teensy sampling rate
+const uint Fs = 10000;  // Teensy sampling rate
 
 bool enforceEarlyLick = false;  // error out if the mouse licks pre-stim
 uint lickMax = 20;              // how many licks are too many licks
@@ -923,11 +923,16 @@ int linspace(float const n, float const d1, float const d2, int const i) {
 
 // Updates all 4 analog channels 
 void inline write_4channel_sync(uint16_t ch1, uint16_t ch2, uint16_t ch3, uint16_t ch4) {
-    // 1. Pre-format 16-bit command packets (Bit 15 determines Channel A vs B)
-    uint16_t p1 = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch1 & 0x0FFF); // Chip 1, Ch A
-    uint16_t p2 = (1 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch2 & 0x0FFF); // Chip 1, Ch B
-    uint16_t p3 = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch3 & 0x0FFF); // Chip 2, Ch A
-    uint16_t p4 = (1 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch4 & 0x0FFF); // Chip 2, Ch B
+  // Bit 15: A/B (0=Ch A, 1=Ch B)
+  // Bit 14: BUF (0=Unbuffered VREF — allows full 0V to 3.3V swing without buffer dropout)
+  // Bit 13: GA  (1=1x Gain — maps 0–4095 linearly across 0V to 3.3V)
+  // Bit 12: SHDN (1=Active output)
+  
+  uint16_t p1 = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch1 & 0x0FFF); // Chip 1, Ch A (0x3000 | ch1)
+  uint16_t p2 = (1 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch2 & 0x0FFF); // Chip 1, Ch B (0xB000 | ch2)
+  uint16_t p3 = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch3 & 0x0FFF); // Chip 2, Ch A (0x3000 | ch3)
+  uint16_t p4 = (1 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (ch4 & 0x0FFF); // Chip 2, Ch B (0xB000 | ch4)
+
 
     SPI.beginTransaction(SPISettings(20000000, MSBFIRST, SPI_MODE0));
 

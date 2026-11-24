@@ -20,10 +20,11 @@ class TeensyParams:
 @dataclass
 class ExperimentConfig:
     # Teensy comms & display
-    teensy_fs: int = 2000
     baud_rate: int = 115200
     serial_port: str = ""
+    teensy_fs: int = 10000
     n_sec_disp: int = 10
+    max_plot_points: int = 2000
 
     # Experiment structure
     baseln: float = 5.0
@@ -62,6 +63,14 @@ class ExperimentConfig:
     opto_len: int = 50  # ms
 
     tp: TeensyParams = field(default_factory=TeensyParams)
+
+    @property
+    def disp_len(self) -> int:
+        return self.teensy_fs * self.n_sec_disp
+
+    @property
+    def plot_step(self) -> int:
+        return max(1, self.disp_len // self.max_plot_points)
 
 
 PARAMETER_CODES: dict[str, int] = {

@@ -23,7 +23,7 @@ SYNC_1 = 0x55
 class TeensyController:
     def __init__(self, cfg: ExperimentConfig) -> None:
         self.cfg = cfg
-        self.disp_len = cfg.teensy_fs * cfg.n_sec_disp
+        self.disp_len = cfg.disp_len
         self.x_axis = np.arange(self.disp_len, dtype=np.float64) / float(cfg.teensy_fs)
 
         self.ser: serial.Serial | None = None
@@ -133,6 +133,13 @@ class TeensyController:
     def get_trace_snapshots(self) -> list[np.ndarray]:
         with self.data_lock:
             return [tr.copy() for tr in self.traces]
+
+    def clear_traces(self) -> None:
+        with self.data_lock:
+            self.traces = [
+                np.full(self.disp_len, np.nan, dtype=np.float64) for _ in range(8)
+            ]
+            self.last_frame_num = None
 
     def get_stream_stats(self) -> dict[str, int]:
         with self.data_lock:
