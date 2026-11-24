@@ -139,9 +139,11 @@ class TaskRunner:
                 trls = ([start_stim_id] * self.cfg.n_start_gomax) + trls
 
             sig_amps_12bit = [
-                int(round(map_jm(a, 0.0, 5.0, 0.0, 4095.0))) for a in self.cfg.sig_amps
+                int(round(map_jm(a, self.cfg.dac_volt_range[0], self.cfg.dac_volt_range[1], 
+                                 self.cfg.dac_bit_range[0],self.cfg.dac_bit_range[1]))) for a in self.cfg.sig_amps
             ]
-            opto_amp_12bit = int(round(map_jm(self.cfg.opto_amp, 0.0, 5.0, 0.0, 4095.0)))
+            opto_amp_12bit = int(round(map_jm(self.cfg.opto_amp, self.cfg.dac_volt_range[0], self.cfg.dac_volt_range[1], 
+                                 self.cfg.dac_bit_range[0],self.cfg.dac_bit_range[1])))
 
             with self.lock:
                 self.n_resp_types = [0, 0, 0, 0]

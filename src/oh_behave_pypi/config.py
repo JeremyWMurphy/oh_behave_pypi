@@ -22,9 +22,13 @@ class ExperimentConfig:
     # Teensy comms & display
     baud_rate: int = 115200
     serial_port: str = ""
-    teensy_fs: int = 10000
+    teensy_fs: int = 5000
     n_sec_disp: int = 10
-    max_plot_points: int = 2000
+    max_plot_points: int = 2000 # this is for decimating down the data for display
+
+    # DAC volts to bit conversions
+    dac_volt_range: tuple[float,float] = (0.0,5.0) # voltage range that dac is currently capable of
+    dac_bit_range: tuple[float,float] = (0.0,4095.0) # typically 12 bit dac 
 
     # Experiment structure
     baseln: float = 5.0
@@ -36,6 +40,12 @@ class ExperimentConfig:
     pulse_len: int = 100  # ms
     pulse_intrvl: int = 100  # ms
     pulse_reps: int = 10
+
+    # Opto parameters
+    opto_chan: int = 1
+    opto_amp: float = 2.38 
+    opto_pulse_type: int = 5 # gaussian
+    opto_len: int = 50  # ms
 
     # Trial distribution & ITI
     iti_len: tuple[float, float] = (3.0, 3.0)
@@ -55,12 +65,6 @@ class ExperimentConfig:
     # Timeouts
     error_timeout_len: tuple[float, float] = (0.0, 0.0)
     fa_timeout_len: tuple[float, float] = (0.0, 0.0)
-
-    # Opto parameters
-    opto_chan: int = 1
-    opto_amp: float = 2.38
-    opto_pulse_type: int = 5
-    opto_len: int = 50  # ms
 
     tp: TeensyParams = field(default_factory=TeensyParams)
 
